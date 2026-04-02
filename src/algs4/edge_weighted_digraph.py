@@ -56,7 +56,16 @@ class EdgeWeightedDigraph:
             for e in self.adj[v]:
                 edges.append(e)
         return edges
+    
+    def out_degree(self, v: int) -> int:
+        return self.adj[v].size()
 
+    def in_degree(self, v: int) -> int:
+        count = 0
+        for edge in self.edges():
+            if edge.To() == v: 
+                count += 1
+        return count
 
 if __name__ == "__main__":
     import sys

@@ -1,48 +1,61 @@
-# Criado para o trabalho
-
-from collections import defaultdict, deque
+from algs4.stack import Stack
 
 class DirectedEulerianCycle:
-    def __init__(self, V):
-        self.V = V
-        self.adj = defaultdict(list)
-        self.in_degree = [0] * V
-        self.out_degree = [0] * V
-
-    def add_edge(self, u, v):
-        self.adj[u].append(v)
-        self.out_degree[u] += 1
-        self.in_degree[v] += 1
-
-    def has_eulerian_cycle(self):
-        for v in range(self.V):
-            if self.in_degree[v] != self.out_degree[v]:
-                return False
-        return True
-
-    def find_cycle(self):
-        if not self.has_eulerian_cycle():
-            return None
+    def __init__(self, G):
+        self._path = None      
+        self._is_balanced = True
+        self._total_weight = 0.0
+        if G.E == 0:
+            return
         
-        adj_iter = {v: deque(self.adj[v]) for v in range(self.V)}
+        for v in range(G.V):
+            if G.out_degree(v) != G.in_degree(v):
+                self.balance = False
+                return
 
-        start = 0
-        for v in range(self.V):
-            if self.out_degree[v] > 0:
-                start = v
-                break
+        adj = [iter(G.adj[v]) for v in range(G.V)]      
 
-        stack = [start]
-        cycle = []
+        s = self._non_isolated_vertex(G)
+        
+        if s == -1: 
+            return
+             
+        aux_stack = Stack()
+        aux_stack.push(s)
 
-        while stack:
-            v = stack[-1]
-            if adj_iter[v]:
-                stack.append(adj_iter[v].popleft())
-            else:
-                cycle.append(stack.pop())
+        self._path = Stack()
+        while not aux_stack.is_empty():
+            v = aux_stack.pop()
+            
+            while True:
+                try:
+                    edge = next(adj[v])
+                    aux_stack.push(v)
+                    self._total_weight += edge.weight
+                    v = edge.To() 
+                except StopIteration:
+                    break
+            
+            self._path.push(v)
 
-        if len(cycle) != sum(self.out_degree) + 1:
-            return None
+        if self._path.size() != G.E + 1:
+            self._path = None
+            self._total_weight = 0.0
 
-        return cycle[::-1]
+    def cycle(self):
+        return self._path
+    
+    def balance(self):
+        return self._is_balanced
+
+    def has_eulerian_cycle(self) -> bool:
+        return self._path is not None
+
+    def _non_isolated_vertex(self, G):
+        for v in range(G.V):
+            if G.out_degree(v) > 0:
+                return v
+        return -1
+    
+    def total_weight(self) -> float:
+        return self._total_weight
