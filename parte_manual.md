@@ -1,4 +1,4 @@
-# Parte Manual — Método do Carteiro Chinês (Passo a Passo)
+# Parte Manual — Eulerização do Grafo
 
 ## Entrada
 
